@@ -100,8 +100,8 @@ lexer.prototype.skipletter = function(){
              return null 
    }
   
-    if(isLetter(this.char) || this.char === "$" || this.char === `"`){
-       while(isLetter(this.char) || this.char === "$" || this.char === `"`){
+    if(isLetter(this.char) || this.char === "$" || this.char === `"` || this.char === "{" || this.char === "}" || this.char === "(" || this.char === ")"){
+       while(isLetter(this.char) || this.char === "$" || this.char === `"` || this.char === "{" || this.char === "}" || this.char === "(" || this.char === ")"){
           
            this.next()
            console.log("skipping")
