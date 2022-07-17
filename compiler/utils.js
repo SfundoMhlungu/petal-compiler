@@ -23,7 +23,7 @@ export function isLetter(c){
 
 
 
-console.log(isLetter("d"), "isletter")
+// console.log(isLetter("d"), "isletter")
 export function iskeyword(word){
     let r = new RegExp(`^${keywords.join("|")}`)
     
@@ -32,4 +32,4 @@ export function iskeyword(word){
 
 }
 
-console.log(iskeyword("start"), "iskeyword")
+// console.log(iskeyword("start"), "iskeyword")

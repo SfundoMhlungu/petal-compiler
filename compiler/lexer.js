@@ -11,8 +11,8 @@ import {readFileSync} from "fs"
 
 import {iswhitespace, isLetter, iskeyword} from "./utils.js"
  
- let f = String(readFileSync('../an.js'))
- console.log(f)
+ let f = readFileSync('../an.js',  {encoding:'utf8', flag:'r'})
+//  console.log(f)
 // for(let i of f){
 //   console.log(i)
 
@@ -44,7 +44,7 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
          
          for(;;){
             let token = this.whitespace() || this.component() 
-            || this.element() || this.textNode() || this.skipletter() || this.eol()
+            || this.element() || this.textNode() || this.eol()
             // if token is whitespace continue
               console.log(token, "token")
                   if(token){
@@ -60,7 +60,7 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
             
          
           const maybeEOF = this.eof()
-          console.log(maybeEOF, "is it the end")
+         //  console.log(maybeEOF, "is it the end")
          // else return that token 
            if(maybeEOF){
              yield maybeEOF
@@ -86,10 +86,16 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
  
  }
  
+lexer.prototype.peek =function(){
+      return this.input[this.cursor + 1]
+    
+}
+
  lexer.prototype.newLine = function(){
      this.line++;
      this.column = 1
  
+  console.log("new Line", this.line, this.column)
  
  }
  
@@ -127,7 +133,7 @@ lexer.prototype.element  = function(){
       
       // passing element only 
       while(!iswhitespace(this.char) && this.char !== "\n"){
-           console.log(this.char)
+         //   console.log(this.char)
            if(!checkedFirstLetter){
              checkedFirstLetter = true
              if(!isLetter(this.char)) throw new Error("expected an element shortly after $ sign at")
@@ -140,11 +146,11 @@ lexer.prototype.element  = function(){
       }// if encounters a whitespace or new line it will break
       
       if(this.char === "\n") return null
-         console.log(this.char, "after getting ele")
+         // console.log(this.char, "after getting ele")
       while(this.char !== "\n" ){
       
          while(iswhitespace(this.char)) {
-             console.log(this.char, "iswhitespace")
+            //  console.log(this.char, "iswhitespace")
            this.next()
           if(this.char === "\n") break;
          }
@@ -152,22 +158,22 @@ lexer.prototype.element  = function(){
          
          if(isLetter(this.char) || this.char === `"`){
              // either attr or value
-             console.log(this.char, "is letter")
+            //  console.log(this.char, "is letter")
              let buffer = ""
              while(isLetter(this.char)){
-                console.log('DOING LETTER PASSING')
+               //  console.log('DOING LETTER PASSING')
                 buffer += this.char
-                console.log(buffer, "buffer")
+               //  console.log(buffer, "buffer")
                 this.next() 
              }
              // if(this.char !== `"`) return null
               // SUPPOSADLEY GOT ATTRSVALUE  
             if(this.char === `"`){
-               console.log("parsing str")
+               // console.log("parsing str")
                 this.next()
                while(this.char !== `"`){
                  buffer += this.char
-                 console.log(buffer, "DOING STR PASSING")
+               //   console.log(buffer, "DOING STR PASSING")
                  this.next()
                
                }
@@ -197,21 +203,23 @@ lexer.prototype.element  = function(){
          }
       
       }
-      console.log('FOUND NEW LINE')
+      // console.log('FOUND NEW LINE')
+      // this.newLine()
       // this means we have attribs
  const el =  {
      type: "element", 
      node: element,
-     attrs
+     attrs,
+     loc: {line:this.line, column:this.column}
    
    }
-   console.log(el)
+   // console.log(el)
    return el
 
 }
 
 lexer.prototype.textNode = function(){  
-console.log("calling textnode", this.char)
+// console.log("calling textnode", this.char)
    if(this.char === undefined) return null;
    if(!isLetter(this.char)) return null;
    let buffer = ""
@@ -241,12 +249,13 @@ console.log("calling textnode", this.char)
       
       }
    
-   
+     this.next()
    }
    
    return {
      type: "textNode",
-     value
+     value,
+     loc: {line:this.line, column:this.column}
    
    }
    // only text node starts with a letter, $ will be held up by element
@@ -258,11 +267,12 @@ console.log("calling textnode", this.char)
        if(this.char !== ".") return null;
        
        this.next()
-          console.log(isLetter(this.char))
-       while(isLetter(this.char)){
-          console.log("is letter", this.char)
+         //  console.log(isLetter(this.char))
+       while(isLetter(this.char) && this.char !== "\r" || this.char !== "\n"){
+         //  console.log("is letter", this.char)
           buffer += this.char;
           this.next()
+        
        
        }
        
@@ -270,22 +280,26 @@ console.log("calling textnode", this.char)
  
               
               
-           if(buffer === "start"){
+           if(buffer.includes("start")){
+               buffer = "Compstart"
               if(this.state.component.gotStart){
               
                  throw new Error("unclosed component somewhere")
               }else{
                  this.state.component.gotStart = true;
+               
                 
                  
               }
            
-           }else if(buffer === "end"){
+           }else if(buffer.includes("end")){
+                   buffer = "Compend"
                if(!this.state.component.gotStart){
                    throw new Error("don't know where this comp starts")
             
                }else{
                    this.state.component.gotStart = false;
+                
                    
                
                }
@@ -312,8 +326,20 @@ console.log("calling textnode", this.char)
  
  lexer.prototype.whitespace = function(){
      //console.log("t", this.char)
+     
+  
+
+
+     if(this.char === "\n"){
+      //   console.log("is NEW LINE IS PASSED AS WHITESPACE")
+         return null
+     }
+    if(this.char === "\r"){
+      //  console.log("slash r is passed as whitespace", iswhitespace('\r')) 
+       return null
+     }
     if(iswhitespace(this.char)){
-         console.log("is whitespace")
+      
       this.next()
     }
     
@@ -328,7 +354,48 @@ console.log("calling textnode", this.char)
  
  
 lexer.prototype.eol = function(){
+      // console.log(this.char === "\n", "slashed n")
+   //    console.log(this.char === "\r", "slashed r")
+   //   if(this.char === "\r"){
+   //      this.newLine()
+   //      this.next()
+   //      if(this.char === "\n") this.next()
+   //      while(this.char === "\r"){
+   //          this.newLine()
+   //          this.next()
+   //          if(this.char === "\n"){
+   //            this.next()
+   //          }
+           
+   //      }
+     
+   //      return true
+   //   } 
+      
+      
+   if(this.char === "\r" && this.peek() !== "\n"){
+      this.newLine()
+      this.next()
+       
+      while(this.char === "\r" && this.peek() !== "\n"){
+         this.newLine()
+         this.next()
+         
+      }
+   }else if(this.char === "\r" && this.peek() === "\n"){
+      this.newLine()
+      this.next()
+      this.next()
+
+      while(this.char === "\r" && this.peek() === "\n"){
+         this.newLine()
+         this.next()
+         this.next()
+      }
+   }
+      
    if(this.char === "\n"){
+   console.log("EOL===============================================")
       this.newLine()
       this.next()
    
@@ -378,3 +445,8 @@ lexer.prototype.eol = function(){
 
 
 console.log([...l.lex()])
+
+
+
+
+//[] pass whitespace for components
