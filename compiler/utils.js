@@ -1,5 +1,5 @@
 
-const keywords = ["start", "end"]
+const keywords = ["start", "end", "text"]
 
 
 export function iswhitespace(c){

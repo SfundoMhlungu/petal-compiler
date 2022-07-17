@@ -43,7 +43,7 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
          
          
          for(;;){
-            let token = this.whitespace() || this.component() || this.skipletter() || this.eol()
+            let token = this.whitespace() || this.component() || this.element() || this.skipletter() || this.eol()
             // if token is whitespace continue
               console.log(token, "token")
                   if(token){
@@ -100,11 +100,11 @@ lexer.prototype.skipletter = function(){
              return null 
    }
   
-    if(isLetter(this.char) || this.char === "$" || this.char === `"` || this.char === "{" || this.char === "}" || this.char === "(" || this.char === ")"){
-       while(isLetter(this.char) || this.char === "$" || this.char === `"` || this.char === "{" || this.char === "}" || this.char === "(" || this.char === ")"){
+    if(isLetter(this.char) || this.char === `"`){
+       while(isLetter(this.char) || this.char === `"`){
           
            this.next()
-           console.log("skipping")
+           console.log("skipping", this.char)
        
        }
     }
@@ -112,6 +112,107 @@ lexer.prototype.skipletter = function(){
 
    return true
 } 
+
+lexer.prototype.element  = function(){
+      if(this.char !== "$") return null;
+      
+      this.next()
+      let element = ""
+    let attrName_ = null;
+    let attrValue = null;
+      let attrName = true
+      let attrs = {}
+      let checkedFirstLetter = false
+      
+      // passing element only 
+      while(!iswhitespace(this.char) && this.char !== "\n"){
+           console.log(this.char)
+           if(!checkedFirstLetter){
+             checkedFirstLetter = true
+             if(!isLetter(this.char)) throw new Error("expected an element shortly after $ sign at")
+           }
+         
+          element += this.char 
+          this.next()
+          
+         // console.log(element)
+      }// if encounters a whitespace or new line it will break
+      
+      if(this.char === "\n") return null
+         console.log(this.char, "after getting ele")
+      while(this.char !== "\n" ){
+      
+         while(iswhitespace(this.char)) {
+             console.log(this.char, "iswhitespace")
+           this.next()
+          if(this.char === "\n") break;
+         }
+         
+         
+         if(isLetter(this.char) || this.char === `"`){
+             // either attr or value
+             console.log(this.char, "is letter")
+             let buffer = ""
+             while(isLetter(this.char)){
+                console.log('DOING LETTER PASSING')
+                buffer += this.char
+                console.log(buffer, "buffer")
+                this.next() 
+             }
+             // if(this.char !== `"`) return null
+              // SUPPOSADLEY GOT ATTRSVALUE  
+            if(this.char === `"`){
+               console.log("parsing str")
+                this.next()
+               while(this.char !== `"`){
+                 buffer += this.char
+                 console.log(buffer, "DOING STR PASSING")
+                 this.next()
+               
+               }
+               this.next()
+               
+               
+            }
+            if(attrName){
+                attrName_ = buffer 
+                attrName = false
+                attrValue = null
+                
+              
+            }else{
+                attrValue = buffer
+                attrName = true 
+                
+            
+            }
+            
+            if(attrName_ && attrValue){
+                attrs[attrName_] = attrValue
+                attrName_ = null
+                
+            
+            }
+         }
+      
+      }
+      console.log('FOUND NEW LINE')
+      // this means we have attribs
+ const el =  {
+     type: "element", 
+     node: element,
+     attrs
+   
+   }
+   console.log(el)
+   return el
+
+}
+
+lexer.prototype.textNode = function(){
+   if(!isLetter(this.char)) return null;
+   // only text node starts with a letter, $ will be held up by element
+}
  
  lexer.prototype.component = function(){
     
@@ -152,8 +253,10 @@ lexer.prototype.skipletter = function(){
                }
            
            
-           }  else{}         
+           }  else{}    
            
+           
+ 
            return{
               type: buffer,
             
