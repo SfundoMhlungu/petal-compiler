@@ -43,7 +43,8 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
          
          
          for(;;){
-            let token = this.whitespace() || this.component() || this.element() || this.skipletter() || this.eol()
+            let token = this.whitespace() || this.component() 
+            || this.element() || this.textNode() || this.skipletter() || this.eol()
             // if token is whitespace continue
               console.log(token, "token")
                   if(token){
@@ -209,8 +210,45 @@ lexer.prototype.element  = function(){
 
 }
 
-lexer.prototype.textNode = function(){
+lexer.prototype.textNode = function(){  
+console.log("calling textnode", this.char)
+   if(this.char === undefined) return null;
    if(!isLetter(this.char)) return null;
+   let buffer = ""
+   let value = ""
+   while(isLetter(this.char)){
+     buffer += this.char
+   
+     this.next()
+   
+   }
+   let t = null
+   
+   
+   if(buffer === "text"){
+       while(this.char !== `"`){
+          if(this.char === "\n") throw new Error("expected a str after text node")
+          this.next()
+       
+       }
+       
+      this.next()
+      
+      while(this.char !== `"`){
+         value += this.char;
+         this.next()
+         if(this.char === "\n") throw new Error("could not find end of str")
+      
+      }
+   
+   
+   }
+   
+   return {
+     type: "textNode",
+     value
+   
+   }
    // only text node starts with a letter, $ will be held up by element
 }
  
