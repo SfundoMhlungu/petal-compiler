@@ -122,9 +122,10 @@ lexer.prototype.skipletter = function(){
 
 lexer.prototype.element  = function(){
       if(this.char !== "$") return null;
-      
+      let col = this.column
       this.next()
       let element = ""
+    
     let attrName_ = null;
     let attrValue = null;
       let attrName = true
@@ -210,7 +211,7 @@ lexer.prototype.element  = function(){
      type: "element", 
      node: element,
      attrs,
-     loc: {line:this.line, column:this.column}
+     loc: {line:this.line, column:col}
    
    }
    // console.log(el)
@@ -224,6 +225,7 @@ lexer.prototype.textNode = function(){
    if(!isLetter(this.char)) return null;
    let buffer = ""
    let value = ""
+   let col = this.column
    while(isLetter(this.char)){
      buffer += this.char
    
@@ -255,7 +257,7 @@ lexer.prototype.textNode = function(){
    return {
      type: "textNode",
      value,
-     loc: {line:this.line, column:this.column}
+     loc: {line:this.line, column:col}
    
    }
    // only text node starts with a letter, $ will be held up by element
