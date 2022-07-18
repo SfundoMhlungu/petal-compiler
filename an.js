@@ -1,22 +1,31 @@
 
 
 
-.start
-
-local person {
-   
-
-}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+.start 
 $div class "nsf" id "sji"
+    text "node"
+
     $p class "id"
-        text "node"
     $section class "em"  
         $p class "m"
             text  "Sed ut perspiciatinventore verita nulla pariatur"
-            button onclick (print person.name)
+            $button onclick print
         $div class "explanation, ll" onclick hide
             $h1 
 .end                       

@@ -122,7 +122,7 @@ lexer.prototype.skipletter = function(){
 
 lexer.prototype.element  = function(){
       if(this.char !== "$") return null;
-      let col = this.column
+      let col = gatherWhitespaces(this.input, this.cursor)
       this.next()
       let element = ""
     
@@ -219,13 +219,37 @@ lexer.prototype.element  = function(){
 
 }
 
+
+function gatherWhitespaces(input, currentPos){
+   let count = 0
+   let pos = currentPos
+   let char = input[pos]
+   
+   while(char !== "\n"){
+      if(char === " "){
+         count++
+       
+      }
+      pos--
+      char = input[pos]
+      
+   
+   }
+
+
+   return count
+
+
+
+} 
+
 lexer.prototype.textNode = function(){  
 // console.log("calling textnode", this.char)
    if(this.char === undefined) return null;
    if(!isLetter(this.char)) return null;
    let buffer = ""
    let value = ""
-   let col = this.column
+   let col = gatherWhitespaces(this.input, this.cursor)
    while(isLetter(this.char)){
      buffer += this.char
    
