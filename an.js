@@ -9,14 +9,6 @@
 
 
 
-
-
-
-
-
-
-
-
 .start 
 $div class "nsf" id "sji"
     text "node"
@@ -31,6 +23,8 @@ $div class "nsf" id "sji"
 .end                       
 
 $img src "mi.png" id "uyh"
+$img src "akochunoyi" id "m"
+   $br
 
 .start
 

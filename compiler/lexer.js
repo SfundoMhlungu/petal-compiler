@@ -7,11 +7,10 @@
 
 
 
-import {readFileSync} from "fs"
 
 import {iswhitespace, isLetter, iskeyword} from "./utils.js"
  
- let f = readFileSync('../an.js',  {encoding:'utf8', flag:'r'})
+
 //  console.log(f)
 // for(let i of f){
 //   console.log(i)
@@ -46,7 +45,7 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
             let token = this.whitespace() || this.component() 
             || this.element() || this.textNode() || this.eol()
             // if token is whitespace continue
-              console.log(token, "token")
+              // console.log(token, "token")
                   if(token){
                                  if(token === true){
                                             continue
@@ -95,7 +94,7 @@ lexer.prototype.peek =function(){
      this.line++;
      this.column = 1
  
-  console.log("new Line", this.line, this.column)
+  // console.log("new Line", this.line, this.column)
  
  }
  
@@ -421,7 +420,7 @@ lexer.prototype.eol = function(){
    }
       
    if(this.char === "\n"){
-   console.log("EOL===============================================")
+   // console.log("EOL===============================================")
       this.newLine()
       this.next()
    
@@ -437,7 +436,7 @@ lexer.prototype.eol = function(){
    
    }
    
-   console.log("end of line returns")
+   // console.log("end of line returns")
    
    return true
 
@@ -447,7 +446,7 @@ lexer.prototype.eol = function(){
 
  lexer.prototype.eof = function(){
       if(this.char === undefined){
-          console.log("end of file")
+          // console.log("end of file")
          return {
             type: "EOF"
          
@@ -460,7 +459,7 @@ lexer.prototype.eol = function(){
  
  }
   
- let  l = new lexer("dd.js", f)
+ // let  l = new lexer("dd.js", f)
  
  
 // console.log(l.lex().next().value)
@@ -470,7 +469,7 @@ lexer.prototype.eol = function(){
 // console.log(l.lex().next().value)
 
 
-console.log([...l.lex()])
+// console.log([...l.lex()])
 
 
 
