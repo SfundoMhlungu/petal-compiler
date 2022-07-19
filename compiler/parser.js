@@ -39,42 +39,85 @@ function parser(lexer, filename=""){
 // }
 
 // parser component
-function component(){
-        if(comp){
-           // console.log("going over a comp", token)
-           // return null
-           if(token && token.type === "element"){
-              if(!comp[0]){
-                  // you must be a parent 
-                 if(token.loc.column !== 0){
-                     throw new SyntaxError(`the first element in a component must have 0 trailing spaces
-                               which signifies it is a parent in ${filename}:${token.loc.line}:${token.loc.column} the compiler found
-                                 ${token.loc.column} spaces`)
-                   
-                 }else{
-                     token[4] = [] 
-                     comp[0] =  token
-                 
-                 }
-                 
-              
-              }else{
-                if(comp[token.loc.column]){
-                
-                
-                }else{
-                   
-                
-                }
-              
-              
-              }
-           
-           }
-        
-        }
+let prev = null
+let current = null
 
- return null
+
+let obj = {}
+let childs = []
+
+let parentIDs = 0
+
+
+function component(){
+      if(comp){
+           prev = current
+           current = token
+          if(prev === null){
+            // looking at the first one 
+            
+            if(current.loc.column !== 0){
+              throw new SyntaxError(`first element must 0 spaces ${current.loc.line, current.loc.column}`)
+            }
+            
+            obj['root'] = current 
+          }else if(prev.loc.column+4 === current.loc.column){
+                  current['parent'] = parentIDs
+                   childs.push(current)
+                  obj[parentIDs] = prev
+                  parentIDs++
+                 
+                  
+              // if(prev.children){
+              //     current['parent'] = prev
+              //     prev.children.push(current)
+                  
+              // }else{
+              //    current['parent'] = prev
+              //    prev["children"] = [current]
+              // }
+          
+          }else if(prev.loc.column === current.loc.column){
+                 current['parent'] = prev.parent
+                  childs.push(current)
+          
+          }
+          
+          else if(current.loc.column < prev.loc.column){
+          
+              Object.keys(obj).forEach((key, i)=> {
+                     if(obj[key].loc.column === current.loc.column){
+                         current["parent"] = obj[key].parent
+                         childs.push(current);
+                        return
+                     }
+              
+              
+              })
+             // l.parent.children.push(current)
+          
+          }
+      
+      
+      }
+  
+
+  // if(comp){
+  //    return null
+  //  }
+  //  else {
+   
+   
+  //   console.log(childs)
+  //  console.log("################################################")
+  //  console.dir(obj, {depth: null})
+  //  childs = []
+  //  obj = {}
+  //      return true 
+  //  }
+
+
+return null
 
 }
 
@@ -84,7 +127,7 @@ function outsideElement(){
   
    if(comp === true && token.type !== "Compend") {
       if(token.type === "EOF") return token
-     console.log("NO NEED TO PASS YOU INSIDE A COMP============================================================")
+     // console.log("NO NEED TO PASS YOU INSIDE A COMP============================================================")
      return null
    } 
    
@@ -112,8 +155,8 @@ function outsideElement(){
 
 next()
 for(;;){
-console.log("looping")
-let parse =  outsideElement()
+// console.log("looping")
+let parse =  outsideElement() || component()
 console.log(parse, "PARSE")
 if(parse && parse.type === "Compstart"){
  comp = true;
@@ -121,6 +164,11 @@ if(parse && parse.type === "Compstart"){
  
 }else if(parse && parse.type === "Compend"){
   comp = false;
+   console.log(childs)
+   console.log("################################################")
+   console.dir(obj, {depth: null})
+   childs = []
+   obj = {}
   console.log("OUTSIDE A COMP AGAIN")
 
 }
