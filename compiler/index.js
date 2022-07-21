@@ -4,6 +4,7 @@ import {readFileSync} from "fs"
 
 import lexer from "./lexer.js"
 import parser from "./parser.js"
+import compiler from "./compiler.js"
 
 
 
@@ -13,4 +14,4 @@ import parser from "./parser.js"
  
  
  
- parser(l.lex(), "an.js")
+ compiler(parser(l.lex(), "an.js"))

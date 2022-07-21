@@ -167,9 +167,31 @@ if(parse && parse.type === "Compstart"){
    console.log(childs)
    console.log("################################################")
    console.dir(obj, {depth: null})
-   childs = []
-   obj = {}
+ 
   console.log("OUTSIDE A COMP AGAIN")
+  
+ childs.forEach((c,i)=> {
+        if(obj[`${c.parent}`] && obj[`${c.parent}`].children){
+                 obj[`${c.parent}`].children.push(c)
+        
+        
+        }else {
+        
+          obj[c.parent].children = [c] 
+        
+        }
+               
+    
+         
+         
+ 
+ })
+  prog.app.push(obj)
+    childs = []
+   obj = {}
+   prev = null
+   current = null
+  
 
 }
 
@@ -201,7 +223,39 @@ next()
 
 }
 
-console.dir(prog, {depth: null})
+
+
+
+
+prog.app.forEach((obj, i)=> {
+      if(obj.root){
+          Object.keys(obj).forEach((key, i)=> {
+          
+              if(key !== "root"){
+              
+                  Reflect.deleteProperty(obj, key)
+              
+              }
+          
+          
+          })
+         
+      
+      
+      }
+
+
+
+
+})
+
+
+
+// console.dir(prog, {depth: null})
+
+
+
+return prog
 
 
 }
