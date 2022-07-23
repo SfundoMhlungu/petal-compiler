@@ -1,7 +1,7 @@
 import {writeFileSync} from "fs"
-
-
-
+// import {fakeParseJSON} from "./JSONparser.js"
+import {witOutSimilarObjects} from "./utils.js"
+// console.log(objectParser.p)
 function parser(lexer, filename=""){
     // console.log([...lexer])
    let token = null
@@ -53,6 +53,7 @@ function component(){
       if(comp){
            prev = current
            current = token
+           console.log(current, prev, "CURRENT AND PREV")
           if(prev === null){
             // looking at the first one 
             
@@ -121,6 +122,21 @@ return null
 
 }
 
+function State(){
+        if(comp === true && token.type !== "Compend") {
+      if(token.type === "EOF") return token
+     // console.log("NO NEED TO PASS YOU INSIDE A COMP============================================================")
+     return null
+   } 
+   
+   if(token.type !== "localState") return null 
+   
+   
+   return token
+
+
+}
+
 // parse a single element
 
 function outsideElement(){
@@ -137,6 +153,7 @@ function outsideElement(){
    if(token && token.loc && token.loc.column > 0){
     console.warn(`an element outside a component cannot be a child so trailing space is ignored by the compiler
     ,if you want to make child relations put the following element in a .start and .end block at ${filename}:${token.loc.line}:${token.loc.column}
+      if it's a data object ignore this warning
     `) 
    }
    
@@ -155,28 +172,29 @@ function outsideElement(){
 
 next()
 for(;;){
-// console.log("looping")
-let parse =  outsideElement() || component()
-console.log(parse, "PARSE")
+// console.log("looping" ,token)
+let parse =  outsideElement() || component() || State()
+// console.log(parse, "PARSE")
 if(parse && parse.type === "Compstart"){
  comp = true;
- console.log("INSIDE A COMPONENT")
+ // console.log("INSIDE A COMPONENT")
  
 }else if(parse && parse.type === "Compend"){
   comp = false;
-   console.log(childs)
-   console.log("################################################")
-   console.dir(obj, {depth: null})
- 
-  console.log("OUTSIDE A COMP AGAIN")
-  
+   // console.log(childs)
+   // console.log("################################################")
+   // console.dir(obj, {depth: null})
+   // console.log(childs, "childs")
+  childs = witOutSimilarObjects(childs)
+
+  // console.log(obj)
  childs.forEach((c,i)=> {
         if(obj[`${c.parent}`] && obj[`${c.parent}`].children){
                  obj[`${c.parent}`].children.push(c)
         
         
         }else {
-        
+          // console.log(c.parent, c)
           obj[c.parent].children = [c] 
         
         }
@@ -195,19 +213,31 @@ if(parse && parse.type === "Compstart"){
 
 }
 
+
+
+
 if(parse){
     if(parse.type === "EOF"){
-      console.log("end of file", parse)
+      // console.log("end of file", parse)
       
       break;
    
    }
-    else if(parse.type === "element"){
-       console.log("GOT ELEMENT")
+    else if(parse.type === "element" || parse.type === "loop"){
+       // console.log("GOT ELEMENT")
+       if(parse.type === "loop"){
+         console.log(parse, "loooooop")
+       }
        prog.app.push(parse)
        
    }else if(parse === true){
-      console.log("continue parsing")
+      // console.log("continue parsing")
+   
+   }else if(parse.type === "localState"){
+      // const j = objectParser.p
+      // console.log(parse[parse.n], "=====================================================")
+   // console.log(fakeParseJSON(parse[parse.n]))
+     prog[parse.n] = parse[parse.n]
    
    }
    
@@ -250,9 +280,11 @@ prog.app.forEach((obj, i)=> {
 })
 
 
+// witOutSimilarObjects(prog)
+
 
 // console.dir(prog, {depth: null})
-prog.app.forEach((el)=> console.log("el======================",el))
+// prog.app.forEach((el)=> console.log("el======================",el))
 
 writeFileSync("../bin/compiled.json", JSON.stringify(prog), (err)=> {console.log(err)})
 

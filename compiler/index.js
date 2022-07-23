@@ -13,7 +13,7 @@ import parser from "./parser.js"
   let f = readFileSync('../an.js',  {encoding:'utf8', flag:'r'})
   const l = new lexer("an.js", f) 
   const lexed = l.lex()
- // let m =  [...lexed]
+  // console.log([...lexed])
  // console.log(m)
  // let s = m[0]
  // s[s.n].split(":", "")

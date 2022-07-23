@@ -1,21 +1,5 @@
-local inner {
-        name : "sk", 
-        age: 23,
-        languages: ["JS", "C", "ZIG"],
-        stack: ["react", "ionic", "electron"],
-    
-    
-    }
-
-
-
-local data {
-    name : "sk", 
-    age: 23,
-    languages: ["JS", "C", "ZIG"],
-    stack: ["react", "ionic", "electron"],
-    nested: #inner
-}
+local data {}
+local talents {}
 
 
 
@@ -23,8 +7,8 @@ local data {
 
 
 
+~start 
 
-.start 
 $div class "nsf" id "sji"
     text "node"
 
@@ -41,17 +25,31 @@ $div class "nsf" id "sji"
         $form
             $label
                 text "i should definetley"
-                    
             $input placeholder "bottomless"
-.end                       
+        $div 
+            for person in data.persons  
+                $label
+                    text (person.name)
+                $label
+                    text (person.age)
+                $img src (person.avatar)
+               
+~end                       
 
 $img src "1.jpg" id "uyh"
 $img src "2.png" id "m"
    $br
 
-.start
+~start
 
-$label id "jjn"
-    text "hello world"
+$div id "jjn"
+    $label
+        text "hello world"
+    for talent in talents
+        $label
+            text (talent.name)
+        $label
+            text (talent.level)
+    
 
-.end
+~end
