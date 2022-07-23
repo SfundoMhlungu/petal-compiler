@@ -1,4 +1,4 @@
-
+import {writeFileSync} from "fs"
 
 
 
@@ -252,6 +252,10 @@ prog.app.forEach((obj, i)=> {
 
 
 // console.dir(prog, {depth: null})
+prog.app.forEach((el)=> console.log("el======================",el))
+
+writeFileSync("../bin/compiled.json", JSON.stringify(prog), (err)=> {console.log(err)})
+
 
 
 

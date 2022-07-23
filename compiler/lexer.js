@@ -42,7 +42,7 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
          
          
          for(;;){
-            let token = this.whitespace() || this.component() 
+            let token = this.whitespace() || this.localstate() || this.component() 
             || this.element() || this.textNode() || this.eol()
             // if token is whitespace continue
               // console.log(token, "token")
@@ -242,10 +242,169 @@ function gatherWhitespaces(input, currentPos){
 
 } 
 
+
+lexer.prototype.localstate = function(){  
+     if(this.char === undefined) return null;
+   if(!isLetter(this.char)) return null;
+   if(this.char !== "l") return null;
+   
+     let buffer = ""
+     let name = ""
+     let value = ""
+     let column = this.column 
+     let line = this.line
+     
+     while(isLetter(this.char)){
+        buffer += this.char;
+        this.next()
+     
+     }
+     // console.log(buffer)
+     
+     if(buffer === "local"){
+           this.next()
+           while(iswhitespace(this.char)){
+            if(this.char === "\t" || this.char === "\n"){
+             throw new Error("a state object should be in the same line a local keyword found none")
+           }
+            this.next()
+           }
+       
+           
+          if(this.char === "\t" || this.char === "\n"){
+             throw new Error("a state object should be in the same line a local keyword found none")
+          }
+           
+           if(isLetter(this.char)){
+              while(isLetter(this.char)){
+                name += this.char
+                this.next()
+              
+              }
+                 
+              // passing the actual object
+              
+               while(iswhitespace(this.char)){
+                     if(this.char === "\t" || this.char === "\n"){
+                           throw new Error("a state object should be in the same line a local keyword found none")
+                        }
+                     this.next()
+               }  
+               
+             
+               
+               if(this.char === "{"){
+                
+                       while(this.char !== "}"){
+                          // console.log(buffer, name, this.char, value)
+                          if(this.char === "$" || this.char === undefined){
+                            throw new Error("no closing brace for state")
+                          
+                          }
+                          value += this.char 
+                          this.next()
+                       
+                       
+                       }
+                         value += this.char;
+                         this.next()
+                         
+                         while(this.char === "}"){
+                           this.next()
+                         }
+                         // console.log(buffer, name, this.char, value)
+                   
+               }else{
+                  throw new Error("expected a curly brace here")
+               
+               } 
+           
+              
+           
+           }else{
+              throw new Error("state name must be letters only,")
+           
+           }
+     }else{
+        throw new Error(`unkwown keyword ${buffer}`)
+     
+      }
+ 
+// let prop = true      
+// let property = "" 
+// let val = "" 
+ 
+// let v = value.replace(/[\r\n{}\s]/gm, "")   
+
+// for(va_ in v){
+//    if(va_ === ":"){
+//        prop = false 
+//    }
+//    else if(prop){
+//       property += va_ 
+   
+//    }else{
+//       val += va_
+//    }
+
+// }
+
+
+//console.log(v.split(":"))  
+
+// let i = 0 
+// let ob = {}
+// let temp = ""
+// // console.log(value.length)
+// for(let val_ of value) {
+//     // temp = value[i]
+//     // console.log(val_ === "\n")
+//     // console.log(value[i])
+//     if(val_ !== ":" || val_ !== "\n"){
+//       if(prop && isLetter(val_) && !iswhitespace(val_)){
+      
+//          property += val_
+      
+//       }else{
+//           val += val_
+          
+      
+//       }       
+//     }else if(val_ === ":"){
+//       prop = false 
+    
+//     }
+//    if(val_ === "\n"){
+//         console.log("newLine")
+//          ob[property] =val_
+//          property = ""
+//          value = ""
+//          prop = true
+    
+//     }
+    
+
+
+// }
+      
+
+  return {
+     type: "localState", 
+     n: name,
+     [name]: value,
+     loc: {line, column}
+  
+  }
+
+
+}
+
+
 lexer.prototype.textNode = function(){  
 // console.log("calling textnode", this.char)
    if(this.char === undefined) return null;
    if(!isLetter(this.char)) return null;
+   if(this.char !== "t") return null;
    let buffer = ""
    let value = ""
    let col = gatherWhitespaces(this.input, this.cursor)
