@@ -10,8 +10,8 @@ import parser from "./parser.js"
 
 
 
-  let f = readFileSync('../an.js',  {encoding:'utf8', flag:'r'})
-  const l = new lexer("an.js", f) 
+  let f = readFileSync('../proudofproject.js',  {encoding:'utf8', flag:'r'})
+  const l = new lexer("proudofproject.js", f) 
   const lexed = l.lex()
   // console.log([...lexed])
  // console.log(m)
@@ -20,4 +20,4 @@ import parser from "./parser.js"
  // console.log(s)
  // console.log(JSON.parse(s[s.n]))
  
- console.dir(parser(lexed, "an.js"), {depth: null})
+ console.dir(parser(lexed, "proudofproject.js"), {depth: null})

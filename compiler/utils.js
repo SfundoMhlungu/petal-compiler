@@ -38,7 +38,7 @@ export function iskeyword(word){
 // console.log(iskeyword("start"), "iskeyword")
 
 
-
+// i thinks you the cause of the problem 
 // temp solution remember to fix
 export function witOutSimilarObjects(childs){
 // diealing a bug: i don't know where it came from

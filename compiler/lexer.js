@@ -148,7 +148,7 @@ lexer.prototype.element  = function(){
          // console.log(element)
       }// if encounters a whitespace or new line it will break
       
-      if(this.char === "\n") return null
+      // if(this.char === "\n") return null
          // console.log(this.char, "after getting ele")
       while(this.char !== "\n" ){
       
