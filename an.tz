@@ -58,11 +58,12 @@ $img src "2.png" id "m"
 $div id "jjn"
     $label
         text "hello world"
-    for talent in talents
-        $label
-            text {talent.name}
-        $label
-            text {talent.level}
+    $div class "talents"
+        for talent in talents
+            $label
+                text {talent.name}
+            $label
+                text {talent.level}
     
 
 ~end
