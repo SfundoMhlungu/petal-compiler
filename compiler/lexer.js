@@ -19,6 +19,8 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
  
  export default class lexer{
        constructor(filename, input){
+           this.nulls = 0;
+           this.trues = 0;
            this.filename = filename;
            this.input = input
            this.cursor = 0;
@@ -45,18 +47,48 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
             let token = this.whitespace() || this.localstate() || this.component() 
             || this.element() || this.textNode() || this.loop() || this.eol()
             // if token is whitespace continue
-              // console.log(token, "token")
-                  if(token){
-                                 if(token === true){
-                                            continue
-                                 }
-                                 
+              console.log(token, "token", this.char, this.line, this.column)
+          if(token){
+         
+                     if(token === true){
+                          
+               
+                              // if(this.char !== undefined || this.char !== null || !iswhitespace(this.char)){
+                              //    console.log(this.char, "where is it")
+                              //    throw new SyntaxError(`cannot lex beyond line ${this.line}, maybe an unexpected character before or in that line
+                              //                         the lexer is stuck lexing this character -> ${this.char}
+                              //                         it may be a start to an unrecognized keyword, char etc
+                              //                         `)
+                              // }
+                            continue
+                            
+                     }
+                                // this.trues = 0
                                  yield token
                                  
                                  continue
            }
       
-            
+           if(token === null){
+                 const maybeEOF_ = this.eof()
+         //  console.log(maybeEOF, "is it the end")
+         // else return that token 
+           if(maybeEOF_){
+             yield maybeEOF_
+             break;
+           }
+               this.nulls += 1
+               
+               if(this.nulls > 100){
+                  throw new SyntaxError(`cannot lex beyond line ${this.line}, maybe an unexpected character before or in that line
+                                         the lexer is stuck lexing this character -> ${this.char}
+                                         it may be a start to an unrecognized keyword etc
+                                       `)
+               }
+               this.nulls = 0
+               continue
+           
+           }
          
           const maybeEOF = this.eof()
          //  console.log(maybeEOF, "is it the end")
@@ -65,8 +97,12 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
              yield maybeEOF
              break;
            }
+           
+           
+           throw new SyntaxError(`unkown token ${token} at ${this.line}:${this.column}`)
          
-         }      
+         }   
+            
       
       }
  
@@ -159,7 +195,7 @@ lexer.prototype.element  = function(){
          }
          
          
-         if(isLetter(this.char) || this.char === `"` || this.char === "("){
+         if(isLetter(this.char) || this.char === `"` || this.char === "{"){
              // either attr or value
             //  console.log(this.char, "is letter")
              let buffer = ""
@@ -172,16 +208,32 @@ lexer.prototype.element  = function(){
              }
              // if(this.char !== `"`) return null
               // SUPPOSADLEY GOT ATTRSVALUE  
-            if(this.char === `"` || this.char === "(" )  {
+            if(this.char === `"` || this.char === "{" )  {
                // console.log("parsing str")
-                this.next()
-                
-               while(this.char !== `"` && this.char !== ")"){
-                 buffer += this.char
-               //   console.log(buffer, "DOING STR PASSING")
-                 this.next()
+               if(this.char === `"`){
+                  this.next()
+                    while(this.char !== `"`){
+                     buffer += this.char
+                     //   console.log(buffer, "DOING STR PASSING")
+                     this.next()
+                     
+                     }
+               }else if(this.char === "{"){
+                       this.next()
+                        buffer = {
+                            value: ""
+                        }
+                        while(this.char !== "}"){
+                           buffer.value += this.char
+                           //   console.log(buffer, "DOING STR PASSING")
+                           this.next()
+                           
+                           }   
                
                }
+              
+                
+              
                this.next()
                
                
@@ -263,6 +315,12 @@ lexer.prototype.loop = function(){
      while(isLetter(this.char)){
        buffer += this.char 
        this.next()
+     
+     }
+     if(buffer === "fn" || buffer === "function"){
+        let f =  this.fn()
+        // console.log(f, "f")
+        return f
      
      }
      
@@ -502,7 +560,134 @@ lexer.prototype.localstate = function(){
 
 }
 
+// lex a function(can be fn or function)
+// followed by a name 
+// open {
+// code 
+// closed }
+lexer.prototype.fn = function(){
 
+
+   
+  
+   let Fnidentifier = ""
+   let args = []
+   let temp = ""
+   let Fnbody = ""
+   let fnEnd = ""
+    
+    
+   while(iswhitespace(this.char)){
+        if(this.char === "\n") throw new Error(`expected a function identifier at ${this.line}:${this.column} but encountered a new line`)
+        // buffer += this.char;
+        this.next()
+        
+   
+   }
+   
+   // getting the identifier
+   
+   while(!iswhitespace(this.char) && this.char !== "("){
+    
+      if(this.char === "\n") throw new Error(`expected a () after fn identifier at ${this.line}:${this.column} but encountered a new line`)   
+      Fnidentifier += this.char
+      this.next()
+   
+   }
+   
+    
+   if(iswhitespace(this.char)){
+     throw new Error(`expected a () after fn identifier at ${this.line}:${this.column} but encountered a whitespace`)   
+   }else if(this.char === "("){
+         this.next()
+          
+         while(this.char !== ")"){
+          if(this.char === "\n") throw new Error(`expected a ) fn arguments at ${this.line}:${this.column} but encountered a new line`)   
+            temp += this.char;
+            this.next()
+           
+              
+         }
+         args = temp.split(",")
+         if(this.char === "\n")  this.newLine();
+              
+         // let passingCode = true;
+         while(iswhitespace(this.char)){
+              if(this.char === "\n")  this.newLine()
+           
+             this.next()
+         }
+      
+         if(this.char === "~"){
+           
+               this.next()
+                while(!iswhitespace(this.char)){
+                
+                   fnEnd += this.char
+                   this.next()
+                }
+                
+                if(fnEnd !== "end"){
+                
+                   throw new SyntaxError(`expected end keyword at ${this.line}:${this.column} to end function ${Fnidentifier}`)
+                }
+        }else{
+           // there must be code
+            this.next()
+           while(this.char !== "~"){
+             if(this.char === "$" || this.char === undefined) {
+                throw new SynataxError(`expected function body after identifier`)
+            }
+             if(this.char === "\n")  this.newLine()
+             
+            Fnbody += this.char;
+            this.next()
+           }
+           // console.log("passing fn", args, Fnbody, this.char)
+             
+           
+                this.next()
+                
+                while(isLetter(this.char)){
+                
+                   fnEnd += this.char
+                   this.next()
+                  
+                }
+                
+                if(fnEnd !== "end"){
+                
+                   throw new SyntaxError(`expected end keyword at ${this.line}:${this.column} to end function ${Fnidentifier}`)
+                }
+   
+           
+           
+           
+           
+        }
+        
+        
+         
+         
+   }else{
+     throw new Error(`expected a () after fn identifier at ${this.line}:${this.column} but encountered unkown char ${this.char}`)   
+   }
+   
+   
+   // console.log("passing fn", args, Fnbody, Fnidentifier)
+   
+ return {
+   type: "function", 
+   id: Fnidentifier, 
+   body: Fnbody,
+   args,
+ 
+ }  
+
+
+}
+
+// make object for local state, data
 lexer.prototype.textNode = function(){  
 // console.log("calling textnode", this.char)
    if(this.char === undefined) return null;
@@ -514,6 +699,7 @@ lexer.prototype.textNode = function(){
    let col = gatherWhitespaces(this.input, this.cursor)
    while(isLetter(this.char)){
      buffer += this.char
+     
    
      this.next()
    
@@ -523,18 +709,18 @@ lexer.prototype.textNode = function(){
    
    if(buffer === "text"){
     
-       while(this.char !== `"` && this.char !== "("){
+       while(this.char !== `"` && this.char !== "{"){
             // console.log(this.char)
           if(this.char === "\n") throw new Error(`expected a str or object path after text node ${this.line}:${this.column}`)
           this.next()
        
        }
-       if(this.char === "("){
+       if(this.char === "{"){
           inState = true
        }
       this.next()
       
-      while(this.char !== `"` && this.char !==  ")"){
+      while(this.char !== `"` && this.char !==  "}"){
          // console.log(value)
          value += this.char;
          this.next()

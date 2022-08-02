@@ -12,7 +12,8 @@ function parser(lexer, filename=""){
            app: [
            
            
-           ]
+           ],
+           state: {}
    
    }
 
@@ -237,7 +238,7 @@ if(parse){
       // const j = objectParser.p
       // console.log(parse[parse.n], "=====================================================")
    // console.log(fakeParseJSON(parse[parse.n]))
-     prog[parse.n] = parse[parse.n]
+     prog.state[parse.n] = parse[parse.n]
    
    }
    

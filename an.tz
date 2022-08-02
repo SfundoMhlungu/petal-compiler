@@ -3,21 +3,32 @@ local talents {}
 
 
 
+fn print(data)
+   console.log(data)
+   
 
+
+~end
+
+fn canPrintel(el)
+  console.log(el)
+
+
+~end
 
 
 
 ~start 
 
 $div class "nsf" id "sji"
-    text "node"
+    text {data.name}
 
     $p class "id"
         text "noriyega"
     $section class "em"  
         $p class "m"
             text  "Sed ut perspiciatinventore verita nulla pariatur"
-            $button onclick print
+            $button onclick {#canPrintel} 
                 text "this is a button"
         $div class "explanation, ll" onclick hide
             $h1 
@@ -25,20 +36,22 @@ $div class "nsf" id "sji"
         $form
             $label
                 text "i should definetley"
-            $input placeholder "bottomless"
-        $div 
+            $input placeholder {data.bottom}
+
+        $div ref "l"
             for person in data.persons  
                 $label
-                    text (person.name)
+                    text {person.name}
                 $label
-                    text (person.age)
-                $img src (person.avatar)
-               
+                    text {person.age}
+                $img src {person.avatar}  
+                $button onclick {#print(person)}
 ~end                       
 
 $img src "1.jpg" id "uyh"
 $img src "2.png" id "m"
    $br
+ 
 
 ~start
 
@@ -47,9 +60,9 @@ $div id "jjn"
         text "hello world"
     for talent in talents
         $label
-            text (talent.name)
+            text {talent.name}
         $label
-            text (talent.level)
+            text {talent.level}
     
 
 ~end
