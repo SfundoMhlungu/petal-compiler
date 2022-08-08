@@ -30,7 +30,7 @@ $div class "nsf" id "sji"
             text  "Sed ut perspiciatinventore verita nulla pariatur"
             $button onclick {#canPrintel} 
                 text "this is a button"
-        $div class "explanation, ll" onclick hide
+        $div class "explanation, ll" onclick {hide(this)}
             $h1 
                 text "I made this, spaces are important"
         $form
@@ -45,11 +45,12 @@ $div class "nsf" id "sji"
                 $label
                     text {person.age}
                 $img src {person.avatar}  
-                $button onclick {#print(person)}
+                $button onclick {#print(person.name, person.age, person.avatar)}
 ~end                       
 
 $img src "1.jpg" id "uyh"
 $img src "2.png" id "m"
+
    $br
  
 
@@ -58,6 +59,8 @@ $img src "2.png" id "m"
 $div id "jjn"
     $label
         text "hello world"
+    $button class "On" onclick {operate(globObject)}
+        text "Global State"
     $div class "talents"
         for talent in talents
             $label

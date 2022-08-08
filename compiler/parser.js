@@ -9,6 +9,7 @@ function parser(lexer, filename=""){
    let component_ = {} 
    const prog = {
            name: filename,
+           functions: {},
            app: [
            
            
@@ -168,13 +169,26 @@ function outsideElement(){
 
 }
 
+function PassFn(){
+
+
+   
+
+   if(token.type === "function"){
+     return token
+   }
+   
+   
+ 
+   return null
+}
 
  
 
 next()
 for(;;){
 // console.log("looping" ,token)
-let parse =  outsideElement() || component() || State()
+let parse =   PassFn() || outsideElement() || component() || State()
 // console.log(parse, "PARSE")
 if(parse && parse.type === "Compstart"){
  comp = true;
@@ -239,6 +253,9 @@ if(parse){
       // console.log(parse[parse.n], "=====================================================")
    // console.log(fakeParseJSON(parse[parse.n]))
      prog.state[parse.n] = parse[parse.n]
+   
+   }else if(parse.type === "function"){
+       prog.functions[parse.id] = parse
    
    }
    
