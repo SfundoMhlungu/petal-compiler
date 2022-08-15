@@ -55,7 +55,7 @@ function component(){
       if(comp){
            prev = current
            current = token
-           console.log(current, prev, "CURRENT AND PREV")
+           // console.log(current, prev, "CURRENT AND PREV")
           if(prev === null){
             // looking at the first one 
             
@@ -241,7 +241,7 @@ if(parse){
     else if(parse.type === "element" || parse.type === "loop"){
        // console.log("GOT ELEMENT")
        if(parse.type === "loop"){
-         console.log(parse, "loooooop")
+         // console.log(parse, "loooooop")
        }
        prog.app.push(parse)
        
@@ -304,7 +304,7 @@ prog.app.forEach((obj, i)=> {
 // console.dir(prog, {depth: null})
 // prog.app.forEach((el)=> console.log("el======================",el))
 
-writeFileSync("../bin/compiled.json", JSON.stringify(prog), (err)=> {console.log(err)})
+// writeFileSync("../bin/compiled.json", JSON.stringify(prog), (err)=> {console.log(err)})
 
 
 

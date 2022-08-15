@@ -18,8 +18,9 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
 // }
  
  export default class lexer{
-       constructor(filename, input){
+       constructor(filename, input, debug = true){
            this.nulls = 0;
+           this.debug = debug;
            this.trues = 0;
            this.filename = filename;
            this.input = input
@@ -47,7 +48,14 @@ import {iswhitespace, isLetter, iskeyword} from "./utils.js"
             let token = this.whitespace() || this.localstate() || this.component() 
             || this.element() || this.textNode() || this.loop() || this.eol()
             // if token is whitespace continue
-              console.log(token, "token", this.char, this.line, this.column)
+              if(this.debug){
+                 if(!iswhitespace(token) && token !== true && token !== null){
+                    console.log(`Lexing following Token: at ${this.filename}:${this.line}:${this.column} `)
+                    console.dir(token, {depth: null})
+                    console.log("\n")
+                 }
+              }
+                   
           if(token){
          
                      if(token === true){
